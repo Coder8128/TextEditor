@@ -7,9 +7,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use("TkAgg")
 
+
+
 root = Tk (className = " Text Editor")
 textArea = ScrolledText.ScrolledText(root, width = 100, height = 50)
 textArea.pack()
+
+
 
 def newFile():
     if len(textArea.get('1.0', END+'-1c')) > 0:
@@ -38,6 +42,91 @@ def exit():
         root.destroy()
 
 def PlotButton():
+    #Just a random plot
+    plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
+    plt.show()
+    
+    #This need further development
+def about():
+    label = messagebox.showinfo("About", "A simple text editor 0.1")
+
+def AnalyzeLetters():
+    text = open("dest.txt", "r")
+
+    d = dict()
+
+    for line in text:
+        line = line.strip()
+
+        line = line.lower()
+
+        line = line.translate(line.maketrans("", "", string.punctuation))
+
+        words = line.split(" ")
+
+        for word in words:
+            for i in word:
+                if i in d:
+                    d[i] = d[i] + 1
+                else:
+                    d[i] = 1
+
+    messagebox.showinfo('Analyze Data', '\n'.join(key+':'+str(val) for key, val in d.items()))
+
+
+def countWords():
+    text = open("dest.txt", "r")
+
+    d = dict()
+
+    for line in text:
+        line = line.strip()
+
+        line = line.lower()
+
+        words = line.split(" ")
+
+        for word in words:
+            if word in d:
+                d[word] = d[word] + 1
+            else:
+                d[word] = 1
+
+    messagebox.showinfo('Analyze Data', '\n'.join(key+':'+str(val) for key, val in d.items()))
+
+
+
+def create_window():
+    root = tk.Tk()
+    root.title("Analized data")
+    text1 = tk.Text(root, height=10, width=50)
+
+    text1.config(state="normal")
+    text1.insert(tk.INSERT,"Check")
+
+    text1.pack()
+
+    root.mainloop()
+
+menu = Menu(root)
+root.config(menu=menu)
+FMenu = Menu(menu)
+menu.add_cascade(label = "File", menu = FMenu)
+FMenu.add_command(label = "New", command = newFile)
+FMenu.add_command(label = "Open", command = OpenFile)
+FMenu.add_command(label = "Save", command = saveFile)
+FMenu.add_separator()
+FMenu.add_command(label = "Exit", command = exit)
+
+helpMenu = Menu(menu)
+menu.add_cascade(label = "Count leters", command = AnalyzeLetters)
+menu.add_cascade(label = "Count words", command = countWords)
+menu.add_cascade(label = "Create Plot", command = PlotButton)
+menu.add_cascade(label = "Help")
+menu.add_cascade(label = "About", command = about)
+
+textArea.pack()
+root.mainloop()
     #Just a random plot
     plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
     plt.show()
