@@ -6,13 +6,11 @@ from tkinter import *
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use("TkAgg")
-
-
+import pandas as pd
 
 root = Tk (className = " Text Editor")
 textArea = ScrolledText.ScrolledText(root, width = 100, height = 50)
 textArea.pack()
-
 
 
 def newFile():
@@ -24,7 +22,6 @@ def newFile():
     root.title("TEXT EDITOR")
 def OpenFile():
     file = filedialog.askopenfile(parent = root, title = 'Select a text file', filetypes = (("Text file", ".txt"),("All files", "*.*")))
-
     if file != None:
         contents = file.read()
         textArea.insert('1.0', contents)
@@ -32,7 +29,6 @@ def OpenFile():
 
 def saveFile():
     file = filedialog.asksaveasfile(mode='w')
-
     if file!= None:
         data = textArea.get('1.0', END+'-1c')
         file.write(data)
@@ -42,28 +38,14 @@ def exit():
         root.destroy()
 
 def PlotButton():
-    #Just a random plot
-    plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
-    plt.show()
-    
-    #This need further development
-def about():
-    label = messagebox.showinfo("About", "A simple text editor 0.1")
-
-def AnalyzeLetters():
     text = open("dest.txt", "r")
-
     d = dict()
 
     for line in text:
         line = line.strip()
-
         line = line.lower()
-
         line = line.translate(line.maketrans("", "", string.punctuation))
-
         words = line.split(" ")
-
         for word in words:
             for i in word:
                 if i in d:
@@ -71,14 +53,46 @@ def AnalyzeLetters():
                 else:
                     d[i] = 1
 
-    messagebox.showinfo('Analyze Data', '\n'.join(key+':'+str(val) for key, val in d.items()))
+    test = ('\n'.join(key+':'+str(val) for key, val in d.items()))
+    char_list = list(test)
+    df = pd.DataFrame({'chars': char_list})
+    df = df[df.chars != ' ']
+    df['num'] = 1
+    df = df.groupby('chars').sum().sort_values('num', ascending=False) / len(df)
+    plt.bar(df.index, df.num, width=0.5, color='g')
+    plt.show()
 
-
-def countWords():
+def about():
+    label = messagebox.showinfo("About", "A simple text editor 0.2")
+def AnalyzeLetters():
     text = open("dest.txt", "r")
-
     d = dict()
 
+    for line in text:
+        line = line.strip()
+        line = line.lower()
+        line = line.translate(line.maketrans("", "", string.punctuation))
+        words = line.split(" ")
+        for word in words:
+            for i in word:
+                if i in d:
+                    d[i] = d[i] + 1
+                else:
+                    d[i] = 1
+
+    win = tk.Toplevel(root)
+    win.geometry('+%s+%s' % (root.winfo_x() + 100, root.winfo_y() + 50))
+    win.transient(root)
+    result = tk.Text(win, width=40, height=20)
+    result.pack()
+    for key in sorted(d.keys()):
+        result.insert('end', '%s: %s\n' % (key, d[key]))
+    win.grab_set()
+
+
+def CountWords():
+    text = open("dest.txt", "r")
+    d = dict()
     for line in text:
         line = line.strip()
 
@@ -91,11 +105,14 @@ def countWords():
                 d[word] = d[word] + 1
             else:
                 d[word] = 1
-
-    messagebox.showinfo('Analyze Data', '\n'.join(key+':'+str(val) for key, val in d.items()))
-
-
-
+    win = tk.Toplevel(root)
+    win.geometry('+%s+%s' % (root.winfo_x() + 100, root.winfo_y() + 50))
+    win.transient(root)
+    result = tk.Text(win, width=40, height=20)
+    result.pack()
+    for key in sorted(d.keys()):
+        result.insert('end', '%s: %s\n' % (key, d[key]))
+    win.grab_set()
 def create_window():
     root = tk.Tk()
     root.title("Analized data")
@@ -103,9 +120,7 @@ def create_window():
 
     text1.config(state="normal")
     text1.insert(tk.INSERT,"Check")
-
     text1.pack()
-
     root.mainloop()
 
 menu = Menu(root)
@@ -120,118 +135,9 @@ FMenu.add_command(label = "Exit", command = exit)
 
 helpMenu = Menu(menu)
 menu.add_cascade(label = "Count leters", command = AnalyzeLetters)
-menu.add_cascade(label = "Count words", command = countWords)
-menu.add_cascade(label = "Create Plot", command = PlotButton)
-menu.add_cascade(label = "Help")
+menu.add_cascade(label = "Count words", command = CountWords)
+menu.add_cascade(label = "Create plot", command = PlotButton)
 menu.add_cascade(label = "About", command = about)
 
 textArea.pack()
-root.mainloop()
-    #Just a random plot
-    plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
-    plt.show()
-    #This need further development
-def about():
-    label = messagebox.showinfo("About", "A simple text editor 0.1")
-
-def AnalyzeLetters():
-    text = open("dest.txt", "r")
-
-    d = dict()
-
-    for line in text:
-        line = line.strip()
-
-        line = line.lower()
-
-        line = line.translate(line.maketrans("", "", string.punctuation))
-
-        words = line.split(" ")
-
-        for word in words:
-            for i in word:
-                if i in d:
-                    d[i] = d[i] + 1
-                else:
-                    d[i] = 1
-
-    for key in list(d.keys()):
-        root = tk.Tk()
-        root.title("Analyzed data")
-        text1 = tk.Text(root, height=10, width=50)
-
-        text1.config(state="normal")
-        text1.insert(tk.INSERT, (key, ":", d[key]))
-
-        text1.pack()
-
-        root.mainloop()
-        print(key, ":", d[key])
-
-def countWords():
-    text = open("dest.txt", "r")
-
-    d = dict()
-
-    for line in text:
-        line = line.strip()
-
-        line = line.lower()
-
-        words = line.split(" ")
-
-        for word in words:
-            if word in d:
-                d[word] = d[word] + 1
-            else:
-                d[word] = 1
-
-    for key in list(d.keys()):
-        root = tk.Tk()
-        root.title("Analyzed data")
-        text2 = tk.Text(root, height=10, width=50)
-
-        text2.config(state="normal")
-        text2.insert(tk.INSERT, (key, ":", d[key]))
-
-        text2.pack()
-
-        root.mainloop()
-        print(key, ":", d[key])
-
-
-def create_window():
-    root = tk.Tk()
-    root.title("Analized data")
-    text1 = tk.Text(root, height=10, width=50)
-
-    text1.config(state="normal")
-    text1.insert(tk.INSERT,"Check")
-
-    text1.pack()
-
-    root.mainloop()
-
-menu = Menu(root)
-root.config(menu=menu)
-FMenu = Menu(menu)
-menu.add_cascade(label = "File", menu = FMenu)
-FMenu.add_command(label = "New", command = newFile)
-FMenu.add_command(label = "Open", command = OpenFile)
-FMenu.add_command(label = "Make data analysis", command=create_window)
-FMenu.add_command(label = "Save", command = saveFile)
-FMenu.add_separator()
-FMenu.add_command(label = "Exit", command = exit)
-
-helpMenu = Menu(menu)
-menu.add_cascade(label = "Count leters", command = AnalyzeLetters)
-menu.add_cascade(label = "Count words", command = countWords)
-menu.add_cascade(label = "Create Plot", command = PlotButton)
-menu.add_cascade(label = "Help")
-menu.add_cascade(label = "About", command = about)
-
-textArea.pack()
-
-
-#Keep the window open
 root.mainloop()
